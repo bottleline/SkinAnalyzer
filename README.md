@@ -92,7 +92,7 @@
 ![image](https://user-images.githubusercontent.com/42457589/142155567-f81fccad-9ace-42f6-b1d9-93b1ff1afdd9.png)
   
 ### 주름
-![image](https://user-images.githubusercontent.com/42457589/142155520-6fb49516-66f9-4421-a69f-1e35cc88c2b5.png)
+![image](https://user-images.githubusercontent.com/42457589/142180201-f3411af6-cd57-4d85-b6cd-1a34fd6595c0.png)  
   
 ### 잡티
 ![image](https://user-images.githubusercontent.com/42457589/142155602-a0f31041-df69-484b-ba45-363ae425251c.png)
