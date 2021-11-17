@@ -15,7 +15,7 @@
 
 ## 대략적인 구현 알고리즘
 ``` c
-# 모공검출
+// 모공검출
 	cv::cvtColor(img, img_after_median, COLOR_BGR2GRAY);                                          // 1. 메디안 필터
 	histogramStreching(img_after_median, img_after_streching);                                    // 2 .히스토그램 스트레칭
 	Laplacian(img_after_streching, img_after_laplacian, CV_8UC1);                                 // 3. 라플라시안 경계값 검출
@@ -43,44 +43,49 @@
 
 ```  
 ``` c
-# 잡티검출
-self.adjust_gamma(img, 0.2)                     # 1. 감마값조절
-cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)           # 2. 흑백화
-self.adaptive_his_streching(img)                # 3. 어댑티브 히스토그램 스트레칭 연산
-cv2.medianBlur(_, _)                            # 4. 메디안 필터 연산
-cv2.morphologyEx(_, cv2.MORPH_BLACKHAT, kernal) # 5. 블랙햇 연산
-cv2.threshold(_, _, _, cv2.THRESH_BINARY)       # 6. thresh hold 값에 따른 이진화
-self.check_eccen3(bt, 20, 1200, 0.4)            # 7. 타원형체크 (결과값이 원형에 가까운지 검출)
+// 잡티검출
+
+	cv::cvtColor(img, img_after_median, COLOR_BGR2GRAY); 						// 1. 그레이스케일
+	cv::medianBlur(img_after_median, img_after_median, 3); 						// 2. 메디안필터
+	histogramStreching(img_after_median, img_after_streching);					// 3. 히스토그램 스트레칭
+	inverseMedian = ~img_after_streching;								// 4. 이미지 반전
+	morphologyEx(inverseMedian, image_after_tophat, cv::MORPH_TOPHAT, circle_blackhat);	
+	morphologyEx(image_after_tophat, image_after_tophat, cv::MORPH_TOPHAT, circle_blackhat);	// 5. 탑햇
+	cv::medianBlur(img_after_median, img_after_median, 3);						// 6. 메디안 필터
+	histogramStreching(img_after_median, img_after_streching);					// 7. 히스토그램 스트레칭
+	cv::GaussianBlur(img_after_median, img_after_gaussian, Size(5, 5), 1.5);			// 8. 가우시안 블러
+	inverseMedian = ~img_after_streching;								// 9. 이미지 반전
+
+	morphologyEx(inverseMedian, image_after_tophat, cv::MORPH_TOPHAT, circle_blackhat);
+	morphologyEx(image_after_tophat, image_after_tophat, cv::MORPH_TOPHAT, circle_blackhat);	// 10. 탑햇 연산
+
+	cv::threshold(image_after_tophat, img_after_thresh, 55, 255, cv::THRESH_BINARY);		// 11. 스레시홀드 연산
+
+	morphologyEx(img_after_morph, img_after_morph, cv::MORPH_DILATE, line_row);			
+	morphologyEx(img_after_morph, img_after_morph, cv::MORPH_DILATE, line_col);
+
+	morphologyEx(img_after_morph, img_after_morph, cv::MORPH_ERODE, line_row);
+	morphologyEx(img_after_morph, img_after_morph, cv::MORPH_ERODE, line_col);			// 10. 닫힘 연산
+	
 ```  
 ``` c
-# 주름검출
-cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)           # 1. 흑백화
-self.adaptive_his_streching(img)                # 2. 어댑티브 히스토그램 스트레칭 연산
-cv2.morphologyEx(_, cv2.MORPH_TOPHAT, kernel)   # 3. 탑햇 연산
-cv2.medianBlur(tophat, _)                       # 4. 메디안 필터 연산
-self.detect_ridges(median, sigma=1.0)           # 5. 릿지검출 연산
-cv2.threshold(_, thresh, 255, cv2.THRESH_BINARY)# 6. thresh hold 값에 따른 이진화
-self.check_eccen3(ridge_thresh, 10, 500, eccen) # 7. 주름성 체크 (원형에 가까운 모양인지 선형에 가까운 모양인지 체크)
-skeletonize(result, method='lee')               # 8. 스켈레토나이즈 연산
+// 주름검출
 
+	cv::cvtColor(cl, cl, COLOR_GRAY2BGR);									// 1. 그레이스케일
+	cl.convertTo(cl, CV_8UC3);										// 2. 3채널화
+	cv::GaussianBlur(cl, img_after_gaussian, Size(5, 5), 1.5);						// 3. 가우시안 블러
+	garborFilter(img_after_gaussian, image_after_gaborfilter);						// 4. 가버필터 적용
+	RDF = ximgproc::RidgeDetectionFilter::create(CV_32FC1, 1, 1, 3, CV_8UC1, 3, 0, BORDER_DEFAULT);		
+	RDF->getRidgeFilteredImage(image_after_gaborfilter, image_after_ridge_detection);			// 5. 릿지 디텍션 필터
+	cv::threshold(image_after_ridge_detection, image_after_ridge_detection, tv, 255, cv::THRESH_BINARY);	// 6. 스레시홀드 연산
+	morphologyEx(img_after_morph, img_after_morph, cv::MORPH_ERODE, line_row);
+	morphologyEx(img_after_morph, img_after_morph, cv::MORPH_ERODE, line_col);
+	morphologyEx(img_after_morph, img_after_morph, cv::MORPH_DILATE, line_row);
+	morphologyEx(img_after_morph, img_after_morph, cv::MORPH_DILATE, line_col);				// 11. 열기 연산
+	checkEccentricity(img_after_morph, type, WRIN);								// 12. 타원형 모양 체크
+	cv::threshold(com, com, 0, 255, cv::THRESH_BINARY);							// 13. 스레시홀드 연산
 ```
 
-``` java
-# tomcat server
-
-p = pore()     # 모공검출 객체생성
-pi = pigment() # 잡티검출 객체생성
-w = wrinkle()  # 주름검출 객체생성
-
-.
-.
-.
-.
-
-return json.dumps(result_dict, ensure_ascii=False, indent="\t", cls=NpEncoder) 
-# 결과 이미지를 base64로 인코딩 후 결과 값과 함께 json 형태로 return
-
-```
 ## 결과 화면 예시
 
 ### 모공
