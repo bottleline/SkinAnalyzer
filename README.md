@@ -89,11 +89,11 @@
 ## 결과 화면 예시
 
 ### 모공
-![image](https://user-images.githubusercontent.com/42457589/142145977-762dd5d3-59ef-4235-b798-904b579898de.png)
+![image](https://user-images.githubusercontent.com/42457589/142155567-f81fccad-9ace-42f6-b1d9-93b1ff1afdd9.png)
   
 ### 주름
-![image](https://user-images.githubusercontent.com/42457589/142145853-b3d502f0-d94e-4758-b506-1f3b732f538f.png)
+![image](https://user-images.githubusercontent.com/42457589/142155520-6fb49516-66f9-4421-a69f-1e35cc88c2b5.png)
   
 ### 잡티
-![image](https://user-images.githubusercontent.com/42457589/142146069-4154dc9d-39d1-4cd1-b01e-a9e4d72d64a2.png)
+![image](https://user-images.githubusercontent.com/42457589/142155602-a0f31041-df69-484b-ba45-363ae425251c.png)
 
