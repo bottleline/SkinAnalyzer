@@ -1,35 +1,48 @@
-# SkinAnalyzer_Python
+# SkinAnalyzer
 
 ## 주요기능
 
-- python3.8 + opencv 를 사용하여 피부의 모공, 잡티, 주름을 검출 
-- flask 서버를 만들어 request 가 오면 분석 결과를 return
+- C++ + opencv 를 사용하여 피부의 모공, 잡티, 주름을 검출 
+- Tomcat 서버를 만들어 request 가 오면 분석 결과를 return
 
 ## 수행역할
 - 설계 및 총 제작
 
 ## 사용한 기술
-- `cv2`, `dlib`, `flask`
+- `opencv`
+- tomcat 8.0
+- JSP
 
 ## 대략적인 구현 알고리즘
-``` python
+``` c
 # 모공검출
+	cv::cvtColor(img, img_after_median, COLOR_BGR2GRAY);                                          // 1. 메디안 필터
+	histogramStreching(img_after_median, img_after_streching);                                    // 2 .히스토그램 스트레칭
+	Laplacian(img_after_streching, img_after_laplacian, CV_8UC1);                                 // 3. 라플라시안 경계값 검출
+	subtract(img_after_streching, img_after_laplacian, img_after_sub_edge);                       // 4. 스트레칭한 이미지 - 라플라시안 값
+	inverseMedian = ~img_after_sub_edge;                                                          // 5. 이미지 반전 
+	morphologyEx(inverseMedian, image_after_tophat, cv::MORPH_TOPHAT, circle_blackhat);
+	morphologyEx(image_after_tophat, image_after_tophat, cv::MORPH_TOPHAT, circle_blackhat);      // 6. 블랙햇 연산
 
-self.adjust_gamma(img,0.2)                      # 1.감마값조절
-cv2.cvtColor(_, cv2.COLOR_BGR2GRAY)             # 2.그레이체널화
-self.adaptive_his_streching(_)                  # 3.어댑티브 히스토그램 명암대비
-cv2.Laplacian(_, cv2.CV_8U, ksize=_)            # 4. 라플라시안 경계값 검출
-cv2.subtract(_, _)                              # 5.스트레칭값 - 라플라시안 값
-cv2.bitwise_not(_)                              # 6.이미지 반전
-cv2.morphologyEx(_, cv2.MORPH_TOPHAT, kernel)   # 7. 탑햇연산
-cv2.morphologyEx(_, cv2.MORPH_BLACKHAT, kernel) # 8. 블랙햇연산
-cv2.dilate(_,_,iterations=1)                    #
-cv2.erode(_,_,iterations=1)                     # 9. 열림연산
-cv2.threshold(_, _, _, cv2.THRESH_BINARY)       # 10. 이진화
-self.check_eccen3(thresh2, 1, 200, 0.7)         # 11. 타원형체크 (결과값이 원형에 가까운지 검출)
+	morphologyEx(image_after_blackhat, image_after_blackhat, cv::MORPH_DILATE, line_row);         // 7. 세로 팽창 연산
+	morphologyEx(image_after_blackhat, image_after_blackhat, cv::MORPH_DILATE, line_col);         // 8. 가로 팽창 연산
+	
+	morphologyEx(image_after_blackhat, image_after_blackhat, cv::MORPH_ERODE, line_row);          // 9. 가로 침식 연산
+	morphologyEx(image_after_blackhat, image_after_blackhat, cv::MORPH_ERODE, line_col);          // 10 .세로 침식 연산
+
+	cv::threshold(image_after_blackhat, image_after_blackhat, 10, 255, cv::THRESH_BINARY);        // 11. 스레시홀드 연산
+
+	img_after_sub_blackhat = image_after_tophat - image_after_blackhat;                           // 12. 탑햇 - 블랙햇 이미지 
+
+	morphologyEx(img_after_morph, img_after_morph, cv::MORPH_ERODE, line_row);                    // 13. 가로 침식 연산
+	morphologyEx(img_after_morph, img_after_morph, cv::MORPH_ERODE, line_col);                    // 14. 세로 침식 연산
+
+	morphologyEx(img_after_morph, img_after_morph, cv::MORPH_DILATE, line_row);                    // 15. 가로 팽창 연산
+	morphologyEx(img_after_morph, img_after_morph, cv::MORPH_DILATE, line_col);                    // 16. 가로 팽창 연산
+	
 
 ```  
-``` python
+``` c
 # 잡티검출
 self.adjust_gamma(img, 0.2)                     # 1. 감마값조절
 cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)           # 2. 흑백화
@@ -39,7 +52,7 @@ cv2.morphologyEx(_, cv2.MORPH_BLACKHAT, kernal) # 5. 블랙햇 연산
 cv2.threshold(_, _, _, cv2.THRESH_BINARY)       # 6. thresh hold 값에 따른 이진화
 self.check_eccen3(bt, 20, 1200, 0.4)            # 7. 타원형체크 (결과값이 원형에 가까운지 검출)
 ```  
-``` python
+``` c
 # 주름검출
 cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)           # 1. 흑백화
 self.adaptive_his_streching(img)                # 2. 어댑티브 히스토그램 스트레칭 연산
@@ -52,8 +65,8 @@ skeletonize(result, method='lee')               # 8. 스켈레토나이즈 연�
 
 ```
 
-``` python
-# flask server
+``` java
+# tomcat server
 
 p = pore()     # 모공검출 객체생성
 pi = pigment() # 잡티검출 객체생성
