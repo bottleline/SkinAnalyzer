@@ -87,6 +87,7 @@
 ```
 
 ## 결과 화면 예시
+![image](https://user-images.githubusercontent.com/42457589/143727267-bf6bd958-4ef6-464a-b42b-6d00ad2502aa.png)
 
 ### 모공
 ![image](https://user-images.githubusercontent.com/42457589/142155567-f81fccad-9ace-42f6-b1d9-93b1ff1afdd9.png)
